@@ -34,7 +34,7 @@ my_hand = []
 dealer_hand = []
 outcome = 0
 show_dealer = False
-
+cards = 0
 
 #
 def deal_cards(current_hand, current_deck):
@@ -44,26 +44,61 @@ def deal_cards(current_hand, current_deck):
     print(current_hand, current_deck)
     return current_hand, current_deck
 
+#draw score
+
+def draw_scores(player,dealer):
+    screen.blit(font.render(f"Score[{player}]", True, "white"), (350,  400))
+    if show_dealer:
+        screen.blit(font.render(f"Score[{dealer}]", True, "white"),  (350,  400))
+
+
+
+
 
 # show drawn cards
 
 def draw_cards(player, dealer, show):
     for i in range(len(player)):
         pygame.draw.rect(screen, "white", [70 + (70 * i), 460 + (5 * i), 120, 220], 0, 5)
-        screen.blit(font.render(player[i], True, "black"), (75 + 70 * i, 465 + 5 * i))
-        screen.blit(font.render(player[i], True, "black"), (75 + 70 * i, 635 + 5 * i))
+        screen.blit(font.render(player[i], True, "black"), (80 + 70 * i, 465 + 5 * i))
+        screen.blit(font.render(player[i], True, "black"), (80 + 70 * i, 625 + 5 * i))
         pygame.draw.rect(screen, "red", [70 + (70 * i), 460 + (5 * i), 120, 220], 5, 5)
 
     for i in range(len(dealer)):
         pygame.draw.rect(screen, "white", [70 + (70 * i), 160 + (5 * i), 120, 220], 0, 5)
         if i != 0 or show:
-            screen.blit(font.render(dealer[i], True, "black"), (75 + 70 * i, 165 + 5 * i))
-            screen.blit(font.render(dealer[i], True, "black"), (75 + 70 * i, 335 + 5 * i))
+            screen.blit(font.render(dealer[i], True, "black"), (80 + 70 * i, 165 + 5 * i))
+            screen.blit(font.render(dealer[i], True, "black"), (80 + 70 * i, 325 + 5 * i))
         else:
-            screen.blit(font.render("???", True, "black"), (75 + 70 * i, 165 + 5 * i))
-            screen.blit(font.render("???", True, "black"), (75 + 70 * i, 335 + 5 * i))
+            screen.blit(font.render("", True, "black"), (80 + 70 * i, 165 + 5 * i))
+            screen.blit(font.render("", True, "black"), (80 + 70 * i, 325 + 5 * i))
         pygame.draw.rect(screen, "blue", [70 + (70 * i), 160 + (5 * i), 120, 220], 5, 5)
 
+
+# Score countnter
+
+
+def calculated_score(hand):
+    hand_score = 0
+    aces_count = hand.count("A")
+    for i in range(len(hand)):
+        # 2-0
+        for j in range(8):
+            if hand[i] == listCard[j]:
+                hand_score += int(hand[i])
+
+            if hand[i] in ["10", "J", "Q", "K"]:
+                hand_score += 10
+            #Aces
+            elif hand[i] == "A":
+                hand_score += 11
+
+
+            if hand_score > 21 and aces_count > 0:
+                for i in range(aces_count):
+                    if hand_score > 21:
+                        hand_score -= 10
+            return hand_score
 
 
 # First screen
@@ -81,13 +116,13 @@ def draw_game(act, record):
         hit = pygame.draw.rect(screen, "white", [0, 700, 300, 100], 0, 5)
         pygame.draw.rect(screen, "green", [0, 700, 300, 100], 3, 5)
         hit_text = font.render("HIT ME", True, "black")
-        screen.blit(hit_text, (55, 735))
+        screen.blit(hit_text, (70, 725))
         button_lst.append(hit)
 
         stand = pygame.draw.rect(screen, "white", [300, 700, 300, 100], 0, 5)
         pygame.draw.rect(screen, "green", [300, 700, 300, 100], 3, 5)
         stand_text = font.render("STAND", True, "black")
-        screen.blit(stand_text, (355, 735))
+        screen.blit(stand_text, (375, 725))
         button_lst.append(stand)
         score_text = smaller_font.render(f"Wins: {record[0]}   Losses: {record[1]}   Draws: {record[2]}", True, "white")
         screen.blit(score_text, (100, 840))
@@ -109,9 +144,15 @@ while run:
             dealer_hand, game_deck = deal_cards(dealer_hand, game_deck)
         print(my_hand, dealer_hand)
         initial_deal = False
-    # draw cards
+    # thing shown in active state, dran cards, calculated score
     if active:
+        player_score = calculated_score(my_hand)
         draw_cards(my_hand, dealer_hand, show_dealer)
+        if show_dealer:
+            dealer_score = calculated_score(dealer_hand)
+            if dealer_score < 17:
+                dealer_hand, game_deck = deal_cards(dealer_hand, game_deck)
+        draw_scores(player_score, dealer_score)
     buttons = draw_game(active, record)
 
     for event in pygame.event.get():
