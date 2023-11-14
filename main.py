@@ -87,18 +87,18 @@ def calculated_score(hand):
             if hand[i] == listCard[j]:
                 hand_score += int(hand[i])
 
-            if hand[i] in ["10", "J", "Q", "K"]:
-                hand_score += 10
-            #Aces
-            elif hand[i] == "A":
-                hand_score += 11
+        if hand[i] in ["10", "J", "Q", "K"]:
+            hand_score += 10
+        #Aces
+        elif hand[i] == "A":
+            hand_score += 11
 
 
-            if hand_score > 21 and aces_count > 0:
-                for i in range(aces_count):
-                    if hand_score > 21:
-                        hand_score -= 10
-            return hand_score
+    if hand_score > 21 and aces_count > 0:
+        for i in range(aces_count):
+            if hand_score > 21:
+                hand_score -= 10
+    return hand_score
 
 
 # First screen
